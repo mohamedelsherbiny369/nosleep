@@ -1,0 +1,412 @@
+/* NoSleep v2.1 — dark only. OFF = monochrome silver/white, ON = purple.
+   One theme switch (body.theme-off / body.theme-on) recolours EVERY element
+   with a 700ms crossfade. Zero purple exists anywhere in the OFF rules. */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #0a0a0f;
+  color: #f4f4f8;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── SCENE ─────────────────────────────────────────────── */
+.scene { position: fixed; inset: 0; z-index: 0; }
+.scene-svg { width: 100%; height: 100%; display: block; }
+
+.edge {
+  stroke: #ccd0da;
+  stroke-width: 2;
+  transition: stroke .7s ease, opacity .7s ease;
+}
+.edge.main { opacity: .50; }
+.edge.dim  { opacity: .30; }
+.edge.seam { stroke-width: 1; opacity: .15; }
+body.theme-on .edge { stroke: #c355f6; }
+body.theme-on .edge.main { opacity: .85; }
+body.theme-on .edge.dim  { opacity: .50; }
+body.theme-on .edge.seam { opacity: .24; }
+
+.wash-off, .wash-on { transition: opacity .7s ease; }
+.wash-on { opacity: 0; }
+body.theme-on .wash-off { opacity: 0; }
+body.theme-on .wash-on { opacity: 1; }
+
+/* travelling light: cloned per edge by app.js — same path, so the light
+   always rides its own line. No SVG filters on animated elements.
+   ONE set of particles for both themes: on toggle the SAME particle
+   changes colour mid-flight (stroke transition below) and speeds up
+   smoothly — app.js adjusts animation playbackRate, never restarts it. */
+.travel path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 7 93;
+  animation-name: travelmove;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-duration: 18s;
+  transition: stroke .7s ease;
+}
+.travel .t-under { stroke: #c8c8d0; stroke-width: 6; opacity: .20; }
+.travel .t-core  { stroke: #ffffff; stroke-width: 2; opacity: .95; }
+body.theme-on .travel .t-under { stroke: #c355f6; opacity: .25; }
+body.theme-on .travel .t-core  { stroke: #e9c6ff; }
+.travel .t-seam.t-under { stroke-width: 3; opacity: .12; }
+.travel .t-seam.t-core  { stroke-width: 1.2; opacity: .55; }
+
+@keyframes travelmove { to { stroke-dashoffset: -100; } }
+
+body.is-paused .travel path { animation-play-state: paused; }
+body.is-paused .scene-svg { filter: brightness(.78); }
+.scene-svg { transition: filter .7s ease; }
+
+/* ─── SPLASH ────────────────────────────────────────────── */
+.splash {
+  position: fixed; inset: 0; z-index: 60;
+  background: #050508;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; overflow: hidden;
+  transition: opacity .5s ease, visibility .5s, background-color .8s ease;
+}
+.splash.done { opacity: 0; visibility: hidden; pointer-events: none; }
+.splash.bye { background-color: transparent; pointer-events: none; }
+/* the intro carries an EXACT copy of the page scene's 20 edges — same
+   viewBox, same paths, same styles — so when it fades, the identical
+   lines are already underneath with the travelling light running.
+   No transform, no scale: pixel-aligned at every moment. */
+.splash-scene {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  transition: opacity 1s ease;
+}
+.splash.bye .splash-scene { opacity: 0; }
+.splash-edges .edge {
+  stroke-dasharray: 100; stroke-dashoffset: 100;
+  animation: drawLine .9s ease forwards;
+}
+@keyframes drawLine { to { stroke-dashoffset: 0; } }
+/* the logo is inline SVG code now (not an image). It arrives already
+   filled, with a STATIC drop-shadow glow — nothing about the glow
+   animates, so nothing can snap or flicker when it flies to land. */
+.splash-logo {
+  position: relative; z-index: 1;
+  width: min(420px, 62vw);
+  filter: drop-shadow(0 0 22px rgba(255,255,255,.4));
+  animation: splashIn 1.5s ease forwards;
+  /* scale around the artwork's own centre during the flight —
+     an SVG's default pivot is its viewBox corner, which made
+     the landing jump */
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes splashIn {
+  0%   { opacity: 0; transform: scale(.96); }
+  35%  { opacity: 1; }
+  100% { transform: scale(1.04); opacity: 1; }
+}
+/* the logo arrives already FILLED (v2.4 behaviour) — no stroke drawing */
+.splash-logo-path { fill: #f4f4f8; }
+
+/* ─── STAGE ─────────────────────────────────────────────── */
+.stage {
+  position: relative; z-index: 1;
+  height: 100dvh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 3.2vh 16px 1.8vh;
+}
+
+/* branding corner — small, top-left, out of the way */
+.corner-brand {
+  position: absolute; top: 22px; left: 26px; z-index: 6;
+  pointer-events: none; user-select: none;
+}
+.corner-name {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 13px; font-weight: 600;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: #c8c8d0; opacity: .85;
+  transition: color .7s ease;
+}
+body.theme-on .corner-name { color: #e9c6ff; }
+.corner-sub {
+  margin-top: 3px;
+  font-size: 9.5px; font-weight: 500;
+  letter-spacing: .24em; text-transform: uppercase;
+  color: #c8c8d0; opacity: .45;
+}
+
+/* while the intro plays the page logo stays hidden — only ONE logo
+   exists on screen; it appears in the exact spot the intro logo lands */
+body.pre-splash #logoBtn { visibility: hidden; }
+/* ...and its breathing is frozen at rest scale while hidden, so the
+   intro logo lands on a target that is NOT mid-breath — a breathing
+   target made the landing jump by up to ~8px */
+body.pre-splash .logo-btn { animation: none; }
+
+.brand-header { text-align: center; }
+.brand-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600; font-size: 30px;
+  letter-spacing: .35em; text-indent: .35em;
+  color: #ffffff;
+}
+.brand-tagline {
+  margin-top: 5px;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: .32em; text-indent: .32em;
+  color: #9a9aa6;
+}
+
+/* ─── LOGO (the toggle) ─────────────────────────────────── */
+.logo-wrapper { margin-top: 17vh; text-align: center; }
+.logo-btn {
+  position: relative;
+  width: min(320px, 34vw);
+  background: none; border: none; cursor: pointer;
+  animation: breathe 3.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 14px rgba(255,255,255,.28));
+  transition: filter .7s ease;
+}
+body.theme-on .logo-btn { filter: drop-shadow(0 0 22px rgba(195,85,246,.55)); }
+.logo-wrapper:hover .logo-btn {
+  animation-play-state: paused;
+  filter: drop-shadow(0 0 30px rgba(255,255,255,.55));
+}
+body.theme-on .logo-wrapper:hover .logo-btn { filter: drop-shadow(0 0 34px rgba(195,85,246,.8)); }
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.025); }
+}
+.logo-img { width: 100%; display: block; transition: opacity .7s ease; }
+.logo-img--on { position: absolute; inset: 0; opacity: 0; }
+body.theme-on .logo-img--on { opacity: 1; }
+body.theme-on .logo-img--off { opacity: 0; }
+.logo-hint { margin-top: 14px; font-size: 12.5px; font-weight: 300; color: #8b8b98; }
+
+/* ─── STATUS PILL ───────────────────────────────────────── */
+.status-pill {
+  margin-top: 3vh; margin-bottom: 14px;
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: rgba(12,12,18,.72);
+  border: 1px solid rgba(200,200,208,.22);
+  backdrop-filter: blur(10px);
+  font-size: 12px; font-weight: 600; letter-spacing: .14em;
+  color: #e8e8ee;
+  transition: border-color .7s ease, color .7s ease;
+}
+.pill-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #c8c8d0;
+  transition: background .7s ease, box-shadow .7s ease;
+}
+body.theme-on .status-pill { border-color: rgba(195,85,246,.5); }
+body.theme-on .pill-dot { background: #c355f6; box-shadow: 0 0 10px rgba(195,85,246,.9); }
+
+/* ─── CONTROL CARD ──────────────────────────────────────── */
+.control-card {
+  margin-top: auto;
+  width: min(500px, 94vw);
+  padding: 22px 26px 18px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.028));
+  border: 1px solid rgba(200,200,208,.16);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 24px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.07);
+  transition: background .7s ease, border-color .7s ease, box-shadow .7s ease;
+}
+body.theme-on .control-card {
+  background: linear-gradient(180deg, rgba(195,85,246,.13), rgba(133,48,196,.07));
+  border-color: rgba(195,85,246,.45);
+  box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 44px rgba(195,85,246,.22), inset 0 1px 0 rgba(233,198,255,.14);
+}
+
+.countdown-row { text-align: center; }
+.countdown {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 54px; font-weight: 500;
+  letter-spacing: .04em;
+  font-variant-numeric: tabular-nums;
+  color: #f4f4f8;
+  transition: color .7s ease, text-shadow .7s ease;
+}
+body.theme-on .countdown { color: #e9c6ff; text-shadow: 0 0 24px rgba(195,85,246,.45); }
+
+.progress-track {
+  margin-top: 12px; height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,.09);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%; width: 100%;
+  background: #c8c8d0;
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .15s linear, background .7s ease;
+}
+body.theme-on .progress-fill { background: #c355f6; }
+
+.elapsed-row {
+  height: 22px; margin-top: 8px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  opacity: 0; transition: opacity .4s ease;
+}
+.elapsed-row.show { opacity: 1; }
+.elapsed-label { font-size: 10.5px; font-weight: 600; letter-spacing: .22em; color: #9a9aa6; }
+.elapsed-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-variant-numeric: tabular-nums; color: #e8e8ee;
+}
+body.theme-on .elapsed-time { color: #e9c6ff; }
+
+.actions-row { display: flex; gap: 10px; margin-top: 12px; }
+.action-btn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 10px;
+  border: 1px solid rgba(200,200,208,.18);
+  background: rgba(255,255,255,.03);
+  color: #c8c8d0;
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase;
+  cursor: pointer;
+  transition: background .3s ease, color .3s ease, border-color .3s ease, opacity .3s ease;
+}
+.action-btn:hover:not(:disabled) { border-color: rgba(200,200,208,.45); color: #ffffff; }
+.action-btn:disabled { opacity: .35; cursor: default; }
+.action-btn--primary { background: #e8e8ee; border-color: transparent; color: #0a0a0f; }
+.action-btn--primary:hover:not(:disabled) { background: #ffffff; color: #0a0a0f; }
+body.theme-on .action-btn--primary { background: #c355f6; color: #ffffff; }
+body.theme-on .action-btn--primary:hover:not(:disabled) { background: #d175f8; color: #ffffff; }
+.action-btn--primary.attention { animation: startPulse 1.6s ease-in-out infinite; }
+@keyframes startPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(255,255,255,0); }
+  50% { box-shadow: 0 0 18px rgba(255,255,255,.35); }
+}
+.action-btn--ghost { flex: 0 1 auto; padding: 8px 22px; }
+
+.presets-row { display: flex; gap: 6px; margin-top: 14px; }
+.preset-btn {
+  flex: 1;
+  padding: 7px 0;
+  border-radius: 999px;
+  border: 1px solid rgba(200,200,208,.16);
+  background: rgba(255,255,255,.03);
+  color: #d8d8e0;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  transition: background .3s ease, color .3s ease, border-color .3s ease;
+}
+.preset-btn:hover { border-color: rgba(200,200,208,.45); color: #ffffff; }
+.preset-btn.selected { background: #e8e8ee; border-color: transparent; color: #0a0a0f; font-weight: 600; }
+body.theme-on .preset-btn.selected { background: #c355f6; color: #ffffff; }
+
+/* fixed slot — Custom/Until inputs appear here, card geometry never changes */
+.input-slot { height: 62px; margin-top: 10px; }
+.input-area { display: flex; align-items: center; gap: 10px; padding-top: 8px; }
+.input-area[hidden] { display: none; }
+.input-label { font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #9a9aa6; white-space: nowrap; }
+.input-area input {
+  flex: 1; min-width: 0;
+  background: rgba(0,0,0,.35);
+  border: 1px solid rgba(200,200,208,.28);
+  border-radius: 8px;
+  color: #ffffff;
+  padding: 8px 10px;
+  font-family: 'JetBrains Mono', monospace; font-size: 14px;
+  color-scheme: dark;
+  outline: none;
+  transition: border-color .3s ease;
+}
+.input-area input:focus { border-color: #f4f4f8; }
+body.theme-on .input-area input:focus { border-color: #c355f6; }
+
+.pip-row { text-align: center; margin-top: 8px; }
+
+.footer { margin-top: 1.4vh; text-align: center; }
+.footer p { font-size: 11.5px; font-weight: 300; color: rgba(200,200,208,.5); }
+
+/* ─── TIME'S-UP FLASH ───────────────────────────────────── */
+/* time's-up flash: a soft disc that bursts OUT of the logo (app.js sets
+   left/top to the logo centre and --fs to the scale that fills the screen),
+   then breathes in and out four times */
+.timesup-flash {
+  position: fixed; z-index: 40; pointer-events: none;
+  width: 120px; height: 120px; border-radius: 50%;
+  left: 50%; top: 40%;
+  transform: translate(-50%, -50%) scale(.15);
+  /* seven-stop falloff pushed OUTWARD (the bright zone reaches the
+     screen edges — the disc is scaled to 1.33x the farthest corner,
+     see app.js): the old three-stop gradient showed visible banding
+     rings ("pixel layers") on dark screens */
+  background: radial-gradient(circle, rgba(255,255,255,.95) 0%, rgba(252,252,255,.62) 22%, rgba(240,240,250,.36) 45%, rgba(232,232,244,.19) 65%, rgba(226,226,240,.09) 82%, rgba(226,226,240,.04) 92%, rgba(226,226,240,0) 100%);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+/* fine noise dither over the gradient — breaks up the last banding steps */
+.timesup-flash::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  opacity: .05; mix-blend-mode: overlay;
+}
+.timesup-flash.flashing { animation: flashGo 3s ease-in-out 1; }
+@keyframes flashGo {
+  0%   { transform: translate(-50%, -50%) scale(.15); opacity: 0; }
+  10%  { opacity: .32; }
+  20%  { transform: translate(-50%, -50%) scale(var(--fs, 24)); opacity: .32; }
+  32%  { opacity: .06; }
+  44%  { opacity: .30; }
+  56%  { opacity: .06; }
+  68%  { opacity: .27; }
+  80%  { opacity: .06; }
+  90%  { opacity: .22; }
+  100% { transform: translate(-50%, -50%) scale(var(--fs, 24)); opacity: 0; }
+}
+
+/* ─── TOAST ─────────────────────────────────────────────── */
+.toast {
+  position: fixed; left: 50%; bottom: 22px; z-index: 70;
+  transform: translateX(-50%) translateY(8px);
+  display: flex; align-items: center; gap: 12px;
+  max-width: min(520px, 92vw);
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(16,16,24,.94);
+  border: 1px solid rgba(200,200,208,.3);
+  font-size: 12.5px; color: #e8e8ee;
+  opacity: 0; visibility: hidden;
+  transition: opacity .35s ease, transform .35s ease, visibility .35s;
+}
+.toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+.toast-close { background: none; border: none; color: #c8c8d0; font-size: 18px; cursor: pointer; line-height: 1; }
+
+/* ─── COMPACT HEIGHTS (1366×768, 800×600) ───────────────── */
+@media (max-height: 820px) {
+  .brand-name { font-size: 24px; }
+  .logo-wrapper { margin-top: 5vh; }
+  .logo-btn { width: 200px; }
+  .status-pill { margin-top: 2vh; }
+  .countdown { font-size: 42px; }
+  .control-card { padding: 16px 20px 12px; }
+  .input-slot { height: 54px; }
+  .action-btn { padding: 8px 0; }
+}
+@media (max-height: 660px) {
+  .brand-name { font-size: 20px; }
+  .brand-tagline { font-size: 9px; }
+  .logo-wrapper { margin-top: 2vh; }
+  .logo-btn { width: 168px; }
+  .logo-hint { margin-top: 8px; font-size: 11px; }
+  .countdown { font-size: 36px; }
+  .input-slot { height: 48px; }
+  .footer p { font-size: 10.5px; }
+}
+@media (max-width: 560px) {
+  .presets-row { gap: 4px; }
+  .preset-btn { font-size: 11px; }
+  .actions-row { gap: 6px; }
+}
