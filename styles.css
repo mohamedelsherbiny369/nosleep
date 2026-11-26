@@ -1,4 +1,6 @@
-/* NoSleep v2.1 — dark only. OFF = monochrome silver/white, ON = purple.
+/* NoSleep v2.8 — dark only. OFF = monochrome silver/white, ON = purple.
+   (v2.8 adds the phone layout + short-screen safety net at the bottom;
+   the desktop design is byte-identical to v2.7.)
    One theme switch (body.theme-off / body.theme-on) recolours EVERY element
    with a 700ms crossfade. Zero purple exists anywhere in the OFF rules. */
 
@@ -405,8 +407,52 @@ body.theme-on .input-area input:focus { border-color: #c355f6; }
   .input-slot { height: 48px; }
   .footer p { font-size: 10.5px; }
 }
+/* ─── PHONES (portrait, ≤560px wide) ────────────────────── */
+/* v2.8: the desktop sizes never compacted on phones (the height
+   queries above key on height alone, and a tall phone — 844px —
+   got NONE of them, so the full-size card crushed everything
+   else into the top half). Phones now get their own compact
+   layout at any height: smaller logo, tighter gaps, slim card —
+   the whole page fits one screen with nothing overlapping. */
 @media (max-width: 560px) {
-  .presets-row { gap: 4px; }
-  .preset-btn { font-size: 11px; }
-  .actions-row { gap: 6px; }
+  .stage { padding: 2.4vh 12px 1.2vh; }
+  .corner-brand { top: 14px; left: 16px; }
+  .corner-name { font-size: 10px; }
+  .corner-sub { font-size: 8px; margin-top: 2px; }
+  /* the corner brand and the centred header share the top band on a
+     narrow screen and their text ran into each other — the header
+     drops below the corner block instead (logo margin gives the
+     height back, so the one-screen fit is unchanged) */
+  .brand-header { margin-top: 30px; }
+  .brand-name { font-size: 21px; }
+  .brand-tagline { font-size: 9px; margin-top: 3px; }
+  .logo-wrapper { margin-top: 5vh; }
+  .logo-btn { width: min(190px, 50vw); }
+  .logo-hint { margin-top: 10px; font-size: 11.5px; }
+  .status-pill { margin-top: 2.2vh; margin-bottom: 10px; padding: 7px 13px; font-size: 10.5px; }
+  .control-card { padding: 16px 16px 12px; border-radius: 16px; }
+  .countdown { font-size: 40px; }
+  .progress-track { margin-top: 9px; }
+  .elapsed-row { height: 20px; margin-top: 6px; }
+  .actions-row { gap: 6px; margin-top: 10px; }
+  .action-btn { padding: 9px 0; font-size: 11.5px; }
+  .presets-row { gap: 4px; margin-top: 11px; }
+  .preset-btn { font-size: 10.5px; padding: 6px 0; }
+  .input-slot { height: 52px; margin-top: 8px; }
+  .pip-row { margin-top: 6px; }
+  .action-btn--ghost { padding: 7px 18px; }
+  .footer { margin-top: 1vh; }
+  .footer p { font-size: 10px; }
+  .splash-logo { width: min(300px, 70vw); }
+}
+
+/* ─── VERY SHORT SCREENS (landscape phones, tiny windows) ── */
+/* safety net: below 480px of height nothing may crush or
+   overlap — the stage flows and the page scrolls instead */
+@media (max-height: 480px) {
+  body { overflow-y: auto; }
+  .stage { height: auto; min-height: 100dvh; }
+  .logo-wrapper { margin-top: 14px; }
+  .status-pill { margin-top: 12px; }
+  .control-card { margin-top: 14px; }
 }
