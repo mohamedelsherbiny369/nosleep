@@ -1,6 +1,6 @@
 # No Sleep — Keep-Awake Tool
 
-> No Sleep is a free online wake lock tool by Elsherbiny Tools. It keeps a computer screen awake — preventing dimming, display sleep and lock — directly in the web browser, with no install, no sign-up and no admin rights. Live tool: https://mohamedelsherbiny369.github.io/nosleep/
+> No Sleep is a free online wake lock tool by Mohamed. It keeps a computer screen awake — preventing dimming, display sleep and lock — directly in the web browser, with no install, no sign-up and no admin rights. Live tool: https://mohamedelsherbiny369.github.io/nosleep/
 
 ## What it does
 - Uses the Screen Wake Lock API to hold the display on while active.

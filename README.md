@@ -44,4 +44,4 @@ Plain HTML, CSS and JavaScript — no build step, no dependencies. The interface
 
 ---
 
-By **Elsherbiny Tools** · More tools to come.
+By **Mohamed** · More tools to come.
