@@ -70,6 +70,9 @@ const S = {
   done: false,
   armedSec: 0,
   armedSource: null,    // 'preset' | 'custom' | 'until'
+  untilTarget: 0,       // epoch ms of the picked clock time ('until' source)
+  sessionSource: null,  // the source the RUNNING session was started with
+  sessionUntilTarget: 0, // its clock target when sessionSource === 'until'
   totalSec: 0,
   remainingMs: 0,
   endAt: 0,
@@ -123,9 +126,25 @@ function startIndef() {
   render();
 }
 
+/* 'until' arms against a CLOCK TIME, not a frozen duration: the remaining
+   seconds are always re-derived from the live clock, so waiting before
+   pressing Start never shifts the end time. A target that has passed
+   rolls to its next occurrence (tomorrow), same rule as at selection. */
+function refreshUntil() {
+  if (!S.untilTarget) return;
+  while (S.untilTarget <= Date.now()) S.untilTarget += 24 * 3600 * 1000;
+  S.armedSec = Math.round((S.untilTarget - Date.now()) / 1000);
+}
+
 function startTimer() {
+  if (S.armedSource === 'until') refreshUntil();
   if (!S.armedSec) return;
   const now = performance.now();
+  /* the session captures its source (and clock target) at Start, so its
+     behaviour is fixed by what the user picked first — later edits to the
+     armed pick cannot change a running session */
+  S.sessionSource = S.armedSource;
+  S.sessionUntilTarget = S.armedSource === 'until' ? S.untilTarget : 0;
   S.mode = 'timer'; S.paused = false; S.done = false;
   S.totalSec = S.armedSec;
   S.remainingMs = S.armedSec * 1000;
@@ -138,7 +157,13 @@ function startTimer() {
 function pauseSession() {
   if (S.mode === 'off' || S.paused) return;
   const now = performance.now();
-  if (S.mode === 'timer') S.remainingMs = Math.max(0, S.endAt - now);
+  if (S.mode === 'timer') {
+    /* duration sessions freeze their remaining time; an 'until' session
+       derives it from the clock, so what Pause shows is always the truth */
+    S.remainingMs = S.sessionSource === 'until'
+      ? Math.max(0, S.sessionUntilTarget - Date.now())
+      : Math.max(0, S.endAt - now);
+  }
   S.elapsedBase = elapsedMs(now);
   S.elapsedStart = 0;
   S.paused = true;
@@ -149,7 +174,16 @@ function pauseSession() {
 function resumeSession() {
   if (!S.paused) return;
   const now = performance.now();
-  if (S.mode === 'timer') S.endAt = now + S.remainingMs;
+  if (S.mode === 'timer' && S.sessionSource === 'until') {
+    /* 'until' resumes against the CLOCK, not the frozen remainder: check
+       what is really left to the chosen time and count from there. If the
+       chosen time passed during the pause, the session is over. */
+    S.remainingMs = S.sessionUntilTarget - Date.now();
+    if (S.remainingMs <= 0) { finishTimer(); return; }
+    S.endAt = now + S.remainingMs;
+  } else if (S.mode === 'timer') {
+    S.endAt = now + S.remainingMs;
+  }
   S.elapsedStart = now;
   S.paused = false;
   acquireWake(true);
@@ -164,6 +198,8 @@ function applyOffState() {
   S.elapsedBase = 0;
   S.elapsedStart = 0;
   S.remainingMs = 0;
+  S.sessionSource = null;
+  S.sessionUntilTarget = 0;
   releaseWake();
 }
 
@@ -178,6 +214,7 @@ function resetAll() {              // Reset: end session, clear the armed pick
   S.done = false;
   S.armedSec = 0;
   S.armedSource = null;
+  S.untilTarget = 0;
   els.customInput.value = '';
   els.untilInput.value = '';
   closeInputs();
@@ -271,7 +308,15 @@ function render() {
 
 /* dynamic-only refresh (countdown / pill / elapsed / progress while running) */
 function renderDynamic() {
-  if (S.mode === 'timer' && !S.paused) {
+  if (S.mode === 'off' && S.armedSource === 'until') refreshUntil();
+  if (S.mode === 'timer' && S.sessionSource === 'until') {
+    /* an 'until' session's remaining time is ALWAYS the live distance to
+       the chosen clock time — running or paused, the display never lies.
+       (It does not auto-finish while paused: Resume performs the check
+       and ends the session if the chosen time has passed.) */
+    S.remainingMs = Math.max(0, S.sessionUntilTarget - Date.now());
+    if (!S.paused && S.remainingMs <= 0) { finishTimer(); return; }
+  } else if (S.mode === 'timer' && !S.paused) {
     S.remainingMs = Math.max(0, S.endAt - performance.now());
     if (S.remainingMs <= 0) { finishTimer(); return; }
   }
@@ -298,6 +343,7 @@ els.presetsRow.querySelectorAll('[data-minutes]').forEach((b) => {
     if (S.mode !== 'off') return;
     S.armedSec = Number(b.dataset.minutes) * 60;
     S.armedSource = 'preset';
+    S.untilTarget = 0;
     S.done = false;
     render();
   });
@@ -326,21 +372,38 @@ els.customInput.addEventListener('input', () => {
   if (v >= 1 && v <= 720) {
     S.armedSec = Math.round(v) * 60;
     S.armedSource = 'custom';
+    S.untilTarget = 0;
     S.done = false;
     render();
   }
 });
-els.untilInput.addEventListener('change', () => {
+function armUntilFromInput() {
   const val = els.untilInput.value;
-  if (!val) return;
+  if (!val) return false;
   const parts = val.split(':');
   const target = new Date();
   target.setHours(Number(parts[0]), Number(parts[1]), 0, 0);
   if (target.getTime() <= Date.now()) target.setDate(target.getDate() + 1);
-  S.armedSec = Math.round((target.getTime() - Date.now()) / 1000);
+  S.untilTarget = target.getTime();
+  S.armedSec = Math.round((S.untilTarget - Date.now()) / 1000);
   S.armedSource = 'until';
   S.done = false;
   render();
+  return true;
+}
+els.untilInput.addEventListener('change', armUntilFromInput);
+
+/* Enter inside an arming input means "go": arm (for Until) and start —
+   the keyboard twin of clicking Start. */
+els.untilInput.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' || S.mode !== 'off') return;
+  e.preventDefault();
+  if (armUntilFromInput()) startTimer();
+});
+els.customInput.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' || S.mode !== 'off') return;
+  e.preventDefault();
+  if (S.armedSec > 0) startTimer();
 });
 
 /* ═══ PiP mini-window (F9): logo + timer + status, fully synced ═══ */

@@ -61,6 +61,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
   body { background:#0a0a0f; color:#e8e8ef; font-family:'Inter',system-ui,sans-serif; line-height:1.7; -webkit-font-smoothing:antialiased; }
   .wrap { max-width: 760px; margin: 0 auto; padding: 48px 22px 72px; }
   .brand { font-family:'Space Grotesk',sans-serif; letter-spacing:.35em; font-size:13px; color:#a7abb8; text-transform:uppercase; }
@@ -83,6 +84,16 @@
   .note { border-left: 3px solid #c355f6; padding: 4px 0 4px 16px; margin: 18px 0; }
   footer { margin-top: 56px; padding-top: 22px; border-top: 1px solid #23232e; font-size: 14px; color:#8b8e9c; }
   footer a { color:#a7abb8; }
+  @media (max-width: 560px) {
+    .wrap { padding: 26px 18px 56px; }
+    .brand { font-size: 11px; letter-spacing: .18em; }
+    h1 { font-size: 27px; }
+    h2 { font-size: 20px; margin: 34px 0 10px; }
+    .topbar { padding: 8px 0; margin: -8px 0 6px; }
+    .topbar .back { font-size: 14px; }
+    .cta { display: block; text-align: center; padding: 15px 18px; }
+    a { overflow-wrap: break-word; }
+  }
 </style>
 </head>
 <body>
