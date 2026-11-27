@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How No Sleep Works — Keep Your Screen Awake | Guide & FAQ</title>
+<meta name="description" content="How No Sleep keeps your screen awake: what a wake lock is, how to use the tool step by step, when it helps (work laptops, presentations, downloads), browser support, and answers to common questions.">
+<link rel="canonical" href="https://mohamedelsherbiny369.github.io/nosleep/guide.html">
+<meta name="theme-color" content="#0a0a0f">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="No Sleep — Elsherbiny Tools">
+<meta property="og:title" content="How No Sleep Works — Guide & FAQ">
+<meta property="og:description" content="What a wake lock is, how to keep your screen awake in one click, when it helps, and which browsers support it.">
+<meta property="og:url" content="https://mohamedelsherbiny369.github.io/nosleep/guide.html">
+<meta property="og:image" content="https://mohamedelsherbiny369.github.io/nosleep/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How No Sleep Works — Guide & FAQ">
+<meta name="twitter:description" content="What a wake lock is, how to keep your screen awake in one click, when it helps, and which browsers support it.">
+<meta name="twitter:image" content="https://mohamedelsherbiny369.github.io/nosleep/og-image.png">
+<link rel="icon" type="image/png" sizes="512x512" href="assets/favicon.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is No Sleep free?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. No Sleep is completely free. There is no sign-up, no account and nothing to install — you just open the page and click the logo." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to install anything, or admin rights on my computer?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. No Sleep runs entirely in your web browser using the Screen Wake Lock API, so it works on work and school laptops where you cannot change the power settings or install software." }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I keep my screen awake with No Sleep?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Open the No Sleep page, click the logo to switch it on, then pick a duration — presets from 30 minutes to 8 hours, a custom length from 1 to 720 minutes, or 'Until' a time you choose. Your screen stays awake until the timer ends or you click the logo again." }
+    },
+    {
+      "@type": "Question",
+      "name": "Which browsers does No Sleep work in?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No Sleep works fully in browsers that support the Screen Wake Lock API, including Chrome, Edge and Safari 16.4 or later. In other browsers the timer still runs and the page warns you that the screen may still sleep." }
+    },
+    {
+      "@type": "Question",
+      "name": "Will No Sleep stop my laptop sleeping when I close the lid?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No — no web tool can do that. Closing the lid is handled by your operating system. A wake lock prevents the display and idle sleep while the lid is open and the No Sleep tab is open." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does No Sleep work on a phone or tablet?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes, in mobile browsers that support the Screen Wake Lock API. The page layout adapts to small screens, and the pop-out floating window works on desktop browsers that support Document Picture-in-Picture." }
+    }
+  ]
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background:#0a0a0f; color:#e8e8ef; font-family:'Inter',system-ui,sans-serif; line-height:1.7; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 48px 22px 72px; }
+  .brand { font-family:'Space Grotesk',sans-serif; letter-spacing:.35em; font-size:13px; color:#a7abb8; text-transform:uppercase; }
+  h1 { font-family:'Space Grotesk',sans-serif; font-size: clamp(30px, 5.4vw, 44px); line-height:1.15; margin: 14px 0 16px; font-weight:600; }
+  h2 { font-family:'Space Grotesk',sans-serif; font-size: 24px; margin: 42px 0 12px; font-weight:600; color:#f4f4f8; }
+  p, li { color:#c6c8d2; font-size: 16.5px; font-weight: 300; }
+  p { margin: 0 0 14px; }
+  ul, ol { margin: 0 0 14px 22px; }
+  li { margin-bottom: 7px; }
+  strong { color:#f4f4f8; font-weight:600; }
+  a { color:#c355f6; text-decoration: underline; text-underline-offset: 3px; }
+  .cta { display:inline-block; margin: 10px 0 6px; padding: 13px 26px; border:1px solid #c355f6; border-radius: 999px; color:#f4f4f8; text-decoration:none; font-family:'Space Grotesk',sans-serif; letter-spacing:.08em; }
+  .cta:hover { background: rgba(195,85,246,.12); }
+  .faq h3 { font-size: 17.5px; margin: 22px 0 6px; color:#f4f4f8; font-weight:600; }
+  .note { border-left: 3px solid #c355f6; padding: 4px 0 4px 16px; margin: 18px 0; }
+  footer { margin-top: 56px; padding-top: 22px; border-top: 1px solid #23232e; font-size: 14px; color:#8b8e9c; }
+  footer a { color:#a7abb8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="brand">No Sleep · Elsherbiny Tools</p>
+  <h1>Keep your screen awake — no install, no settings, one click</h1>
+  <p><strong>No Sleep</strong> is a free online <strong>wake lock tool</strong>. It stops your computer screen from dimming, sleeping or locking while you work — without installing software, without an account, and without changing your system power settings. That makes it especially useful on <strong>work and school laptops</strong>, where those settings are usually locked down by an administrator.</p>
+  <p><a class="cta" href="./">Open No Sleep — keep my screen awake</a></p>
+
+  <h2>How it works</h2>
+  <p>No Sleep uses the <strong>Screen Wake Lock API</strong>, a standard feature built into modern browsers. When you switch it on, the page asks your browser to hold a "wake lock" — a promise that the display stays on. When the timer ends (or you switch it off), the lock is released and your computer goes back to its normal sleep behaviour.</p>
+  <p>Nothing runs in the background and nothing is installed. Close the tab and everything stops.</p>
+
+  <h2>How to use No Sleep</h2>
+  <ol>
+    <li><strong>Open the page</strong> in Chrome, Edge or Safari and leave the tab open.</li>
+    <li><strong>Click the logo</strong> to switch No Sleep on — the status changes from "Sleep allowed" to "No Sleep".</li>
+    <li><strong>Pick a duration:</strong> presets from 30 minutes to 8 hours, a custom length (1–720 minutes), or <strong>Until</strong> a clock time you choose. You can pause, resume, stop or reset at any time.</li>
+    <li>Optional: use <strong>Pop out</strong> to keep a small floating No Sleep window on top while you work in other apps.</li>
+  </ol>
+
+  <h2>When is a keep-awake tool useful?</h2>
+  <ul>
+    <li><strong>Work laptops without admin rights</strong> — the screen locks during long reads, builds or calls, and you can't change the power plan.</li>
+    <li><strong>Presentations and meetings</strong> — the display won't dim mid-slide or mid-demo.</li>
+    <li><strong>Long downloads, uploads and renders</strong> — the machine stays awake until the job finishes.</li>
+    <li><strong>Dashboards and monitoring</strong> — a status screen that must stay visible.</li>
+    <li><strong>Reading and studying</strong> — no tapping the mouse every few minutes to wake the screen.</li>
+    <li><strong>Kiosks and displays</strong> — a browser tab that simply has to stay on.</li>
+  </ul>
+
+  <h2>Browser support</h2>
+  <p>No Sleep works fully in browsers that support the Screen Wake Lock API — <strong>Chrome, Edge and other Chromium browsers, and Safari 16.4+</strong>. In a browser without the API, the timer still runs and counts down, and the page clearly warns you that the screen may still sleep.</p>
+  <div class="note">
+    <p>Two honest limits of every web-based wake lock: it holds while the No Sleep <strong>tab stays open</strong>, and it cannot override your operating system when you <strong>close the laptop lid</strong>.</p>
+  </div>
+
+  <h2>Frequently asked questions</h2>
+  <div class="faq">
+    <h3>Is No Sleep free?</h3>
+    <p>Yes. No Sleep is completely free. There is no sign-up, no account and nothing to install — you just open the page and click the logo.</p>
+
+    <h3>Do I need to install anything, or admin rights on my computer?</h3>
+    <p>No. No Sleep runs entirely in your web browser using the Screen Wake Lock API, so it works on work and school laptops where you cannot change the power settings or install software.</p>
+
+    <h3>How do I keep my screen awake with No Sleep?</h3>
+    <p>Open the No Sleep page, click the logo to switch it on, then pick a duration — presets from 30 minutes to 8 hours, a custom length from 1 to 720 minutes, or "Until" a time you choose. Your screen stays awake until the timer ends or you click the logo again.</p>
+
+    <h3>Which browsers does No Sleep work in?</h3>
+    <p>No Sleep works fully in browsers that support the Screen Wake Lock API, including Chrome, Edge and Safari 16.4 or later. In other browsers the timer still runs and the page warns you that the screen may still sleep.</p>
+
+    <h3>Will No Sleep stop my laptop sleeping when I close the lid?</h3>
+    <p>No — no web tool can do that. Closing the lid is handled by your operating system. A wake lock prevents the display and idle sleep while the lid is open and the No Sleep tab is open.</p>
+
+    <h3>Does No Sleep work on a phone or tablet?</h3>
+    <p>Yes, in mobile browsers that support the Screen Wake Lock API. The page layout adapts to small screens, and the pop-out floating window works on desktop browsers that support Document Picture-in-Picture.</p>
+  </div>
+
+  <p style="margin-top:36px;"><a class="cta" href="./">Open No Sleep</a></p>
+
+  <footer>
+    <p>No Sleep is a free tool by <strong>Elsherbiny Tools</strong>. It is open source — see the code, the features and this guide's source in the <a href="https://github.com/mohamedelsherbiny369/nosleep">No Sleep repository on GitHub</a>.</p>
+  </footer>
+
+</div>
+</body>
+</html>

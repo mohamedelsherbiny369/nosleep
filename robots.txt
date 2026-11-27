@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mohamedelsherbiny369.github.io/nosleep/sitemap.xml

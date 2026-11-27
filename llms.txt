@@ -1,0 +1,19 @@
+# No Sleep — Keep-Awake Tool
+
+> No Sleep is a free online wake lock tool by Elsherbiny Tools. It keeps a computer screen awake — preventing dimming, display sleep and lock — directly in the web browser, with no install, no sign-up and no admin rights. Live tool: https://mohamedelsherbiny369.github.io/nosleep/
+
+## What it does
+- Uses the Screen Wake Lock API to hold the display on while active.
+- One-click toggle: click the logo to start or stop.
+- Timer presets (30m, 1h, 2h, 4h, 8h), a custom duration (1–720 minutes), or an "Until" clock-time mode.
+- Pause, resume, stop and reset; a live countdown and an elapsed "awake" timer.
+- Pop-out floating window (Document Picture-in-Picture) on supported desktop browsers.
+- Especially useful on work or school laptops where power settings are locked by an administrator.
+
+## Browser support
+Full support in Chrome, Edge and other Chromium browsers, and Safari 16.4+. In browsers without the Wake Lock API the timer still runs and the page warns that the screen may sleep. A wake lock holds while the tab is open and cannot prevent sleep when the laptop lid is closed.
+
+## Links
+- Tool: https://mohamedelsherbiny369.github.io/nosleep/
+- Guide & FAQ: https://mohamedelsherbiny369.github.io/nosleep/guide.html
+- Source code: https://github.com/mohamedelsherbiny369/nosleep
